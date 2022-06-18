@@ -1,6 +1,6 @@
 #+AUTHOR: Maximo Tejeda
 #+EMAIL: Maximotejeda@gmail.com
-#+TITLE: Emacs Custom Config for Go, Javascript and Python
+#+TITLE: Emacs Custom Config for ORG and Programming
 
 * Init
  The project is tha base configuration Collected and used for my devs, is centered in the autocomplete and helpers function to ease the programming in the day to day.
