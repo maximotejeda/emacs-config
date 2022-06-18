@@ -1,0 +1,44 @@
+#+AUTHOR: Maximo Tejeda
+#+EMAIL: Maximotejeda@gmail.com
+#+TITLE: Emacs Custom Config for Go, Javascript and Python
+
+* Init
+ The project is tha base configuration Collected and used for my devs, is centered in the autocomplete and helpers function to ease the programming in the day to day.
+
+ As everything will be changing key bindings and and used functions to adapt the behavior to me.
+** Instalation
+#+begin_src bash
+  git clone https://github.com/maximotejeda/emacs-config
+#+end_src
+** lsp
+- bindings:
+  "C-c l" access the main lsp keymap menu
+
+** Python
+  Using elpy as main resource.
+  1. After initial download from melpa elpy will ask for environment to be installed globally in the system.
+    #+begin_src bash
+      sudo apt install python-virtualenv
+    #+end_src
+     1. Will try to install a virtualenv and install its dependencies
+     2. remember to work from a .venv to not make a mess globally.
+** Javascript
+   The base to work with js and jsx is the *lsp-mode*
+   1. The first time you try to open a Js file will ask to auto *install a lsp-server*.
+       jsts-ls is deprecated and outdated.
+       Its necesary to auto complete and linting
+   2. from there the next time you open a js file will use that *ls-server*
+** Go
+If routes to your go bin are different shange it in the *go.el*  
+ The Go-mode is based in the go tooling
+ 1. gofmt:
+    it comes with go by default
+ 2. gocode:
+    #+begin_src bash
+      go install github.com/nsf/gocode@latest
+    #+end_src
+ 3. goimports
+    default
+ 4. godef:
+    changed *go-to-definition* to *godef-jump* 
+    

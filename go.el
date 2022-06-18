@@ -22,7 +22,7 @@
 	   web-mode
 	  ) . lsp-deferred)
   :init
-  (setq lsp-keep-workspace-alive nil
+  (setq lsp-keep-workspace-alive t
         lsp-signature-doc-lines 5
         lsp-idle-delay 0.5
         lsp-prefer-capf t
@@ -36,7 +36,7 @@
   (setq lsp-enable-on-type-formatting nil)
   (setq lsp-signature-auto-activate nil)
   (setq lsp-signature-render-documentation nil)
-  (setq lsp-eldoc-hook nil)
+  ;;(setq lsp-eldoc-hook t)
   (setq lsp-modeline-code-actions-enable nil)
   (setq lsp-modeline-diagnostics-enable nil)
   (setq lsp-headerline-breadcrumb-enable nil)
@@ -64,14 +64,14 @@
 ;; required gocode for go-eldoc
 ;; go install github.com/nsf/gocode@latest
 
-;;(setenv "PATH" (concat (getenv "PATH") path-separator "~/go/bin"))
+(setenv "PATH" (concat (getenv "PATH") path-separator "~/go/bin"))
 (setq exec-path (append '("/usr/local/go/bin") exec-path))
 (setq exec-path (append '("~/go/bin") exec-path))
 
 ;; Error highlight as you write
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
-(setenv "PATH" (concat "/home/maximo/go/bin:" (getenv "PATH")))
+
 ;; Company mode
 (setq company-idle-delay 0)
 (setq company-minimum-prefix-length 1)
