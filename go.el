@@ -96,6 +96,8 @@
       (local-set-key (kbd "M-.") #'godef-jump)
       ;; Format using gofmt before save
       (add-hook 'before-save-hook 'gofmt-before-save)
+      (add-hook 'before-save-hook #'lsp-organize-imports t t)
+      (add-hook 'before-save-hook #'lsp-format-buffer)
 
       ; extra keybindings from https://github.com/bbatsov/prelude/blob/master/modules/prelude-go.el
       (let ((map go-mode-map))

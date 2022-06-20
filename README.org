@@ -8,7 +8,7 @@
  As everything will be changing key bindings and and used functions to adapt the behavior to me.
 ** Instalation
 #+begin_src bash
-  git clone https://github.com/maximotejeda/emacs-config
+  git clone https://github.com/maximotejeda/emacs-config.git
 #+end_src
 ** lsp
 - bindings:
@@ -32,13 +32,19 @@
 If routes to your go bin are different shange it in the *go.el*  
  The Go-mode is based in the go tooling
  1. gofmt:
-    it comes with go by default
+
+    It comes with go by default
  2. gocode:
-    #+begin_src bash
+
+      #+begin_src bash
       go install github.com/nsf/gocode@latest
     #+end_src
- 3. goimports
+
+3. goimports
+
     default
- 4. godef:
+
+4. godef:
+
     changed *go-to-definition* to *godef-jump* 
     
