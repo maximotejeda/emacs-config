@@ -1,15 +1,5 @@
 #+AUTHOR: Maximo Tejeda
 #+EMAIL: maximotejeda@gmail.com
-* Basic Customization
-Config
-#+begin_src emacs-lisp
-    (setq inhibit-startup-message t)                ;; init message hide
-    (load-theme 'material t)                        ;; apply materialtheme 
-    (global-linum-mode t)                           ;; Numbers on the lines
-    (global-set-key [f8] 'treemacs)
-    (setq user-full-name "maximo tejeda"
-          user-email-address "maximotejeda@gmail.com")
-#+end_src
 * Backup
 A place where all the backups will be saved
 #+begin_src emacs-lisp
@@ -61,6 +51,16 @@ use a map to walk inside a list
 	  (unless (package-installed-p package)
 	    (package-install package)))
       myPackages)
+#+end_src
+* Basic Customization
+Config
+#+begin_src emacs-lisp
+    (setq inhibit-startup-message t)                ;; init message hide
+    (load-theme 'material t)                        ;; apply materialtheme 
+    (global-linum-mode t)                           ;; Numbers on the lines
+    (global-set-key [f8] 'treemacs)
+    (setq user-full-name "maximo tejeda"
+          user-email-address "maximotejeda@gmail.com")
 #+end_src
 * Programming
 Here laid the Programming configuration of each of the langages
