@@ -1,0 +1,409 @@
+#+AUTHOR: Maximo Tejeda
+#+EMAIL: maximotejeda@gmail.com
+* Basic Customization
+Config
+#+begin_src emacs-lisp
+    (setq inhibit-startup-message t)                ;; init message hide
+    (load-theme 'material t)                        ;; apply materialtheme 
+    (global-linum-mode t)                           ;; Numbers on the lines
+    (global-set-key [f8] 'treemacs)
+    (setq user-full-name "maximo tejeda"
+          user-email-address "maximotejeda@gmail.com")
+#+end_src
+* Backup
+A place where all the backups will be saved
+#+begin_src emacs-lisp
+      (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+      (with-eval-after-load 'tramp  
+        (add-to-list 'tramp-backup-directory-alist
+                     (cons tramp-file-name-regexp nil)))
+#+end_src
+mantains always the last version
+#+begin_src emacs-lisp
+  (setq delete-old-versions -1)
+  (setq version-control t)
+  (setq vc-make-backup-files t)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+#+end_src
+* Package manager
+Require packages and add some repos to the list
+#+begin_src emacs-lisp
+  ;; lets enable packages support
+(require 'package)
+
+;; add all the archives i found 18-04-2023
+(setq package-archives
+      '(("gnu" . "https://elpa.gnu.org/packages/")
+	("nongnu" . "https://elpa.nongnu.org/nongnu/")
+	("melpa-stable" . "https://stable.melpa.org/packages/")
+	("melpa" . "https://melpa.org/packages/")))
+#+end_src
+Initialize the packages and if theres no content in the archive refresh
+#+begin_src emacs-lisp
+  (package-initialize)
+(when (not package-archive-contents)
+  (package-refresh-contents))
+#+end_src
+define variable with the packages ii want to have in the first run
+#+begin_src emacs-lisp
+  (defvar myPackages
+    '(
+      better-defaults
+      material-theme
+      use-package
+      )
+    )
+#+end_src
+go through the list of packages "strings" and if the package is not installed install it
+use a map to walk inside a list
+#+begin_src emacs-lisp
+  (mapc #'(lambda (package)
+	  (unless (package-installed-p package)
+	    (package-install package)))
+      myPackages)
+#+end_src
+* Programming
+Here laid the Programming configuration of each of the langages
+** LSP server
+Here ill install all LSP dependencies and the LSP itself
+Install langage server for DART 
+#+begin_src emacs-lisp
+    (use-package lsp-dart
+    :ensure t )
+#+end_src
+
+Install company for Auto completion
+#+begin_src emacs-lisp
+    (use-package company
+      :ensure t)
+    
+#+end_src
+
+Install LSP mode and configure the distinct langages to use
+#+begin_src emacs-lisp
+    (use-package lsp-mode
+      :ensure t
+      :bind (:map lsp-mode-map
+		  ("C-c r" . lsp-find-references)
+		  ("C-c t" . lsp-find-definition)
+		  ("C-c C-r" . lsp-rename)
+		  )
+      :init
+      ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+      (setq lsp-keymap-prefix "C-c l")
+      (setq lsp-modeline-diagnostics-enable t)
+      :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	     (js-mode . lsp)
+	     (go-mode . lsp)
+	     (web-mode . lsp)
+	     (dart-mode . lsp)
+	     ;; if you want which-key integration
+	     (lsp-mode . lsp-enable-which-key-integration)
+	     (lsp-mode . lsp-treemacs))
+      :commands lsp)
+#+end_src
+
+Optional install lsp-ui
+#+begin_src emacs-lisp
+  ;; optionally
+  (use-package lsp-ui :ensure t :commands lsp-ui-mode)
+#+end_src
+
+Install integration with helm
+#+begin_src emacs-lisp
+  ;; if you are helm user
+  (use-package helm-lsp :ensure t :commands helm-lsp-workspace-symbol)
+#+end_src
+
+Install Ivy Integration
+#+begin_src emacs-lisp
+    ;; if you are ivy user
+	    (use-package lsp-ivy :ensure t :commands lsp-ivy-workspace-symbol)
+#+end_src
+
+install treemacs integration
+#+begin_src emacs-lisp
+  (use-package lsp-treemacs :ensure t :commands lsp-treemacs-errors-list)
+#+end_src
+
+Dap mode for debuging pending to configure
+#+begin_src emacs-lisp
+	;; optionally if you want to use debugger
+	(use-package dap-mode :ensure t)
+	;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+#+end_src
+
+integration with which key
+#+begin_src emacs-lisp
+	;; optional if you want which-key integration
+	(use-package which-key
+		     :ensure t
+		     :config
+		     (which-key-mode))
+
+#+end_src
+
+** Python
+Here is the python configuration
+#+begin_src emacs-lisp
+(use-package elpy
+	     :ensure t
+	     :init
+	     (advice-add 'python-mode :before 'elpy-enable)
+	     (setq python-shell-interpreter "python3.11"
+		   python-shell-interpreter-args "-i")
+	     )
+  
+#+end_src
+** JavaScript
+Javascript config to be reviewed
+#+begin_src emacs-lisp
+
+  (use-package web-mode
+    :ensure t
+    :mode "\\.\\([jt]sx\\)\\'"
+    :init
+  
+    )
+#+end_src
+#+begin_src emacs-lisp
+
+  (use-package rainbow-mode
+    :ensure t
+    :hook css-mode
+    )
+#+end_src
+#+begin_src emacs-lisp
+
+  (use-package yaml-mode
+    :ensure t
+    :defer
+    )
+
+#+end_src
+#+begin_src emacs-lisp
+
+  (use-package js2-mode
+	       :ensure t
+	       :init
+	       (add-hook 'js-mode-hook 'js2-minor-mode)
+	       (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+	       )
+#+end_src
+#+begin_src emacs-lisp
+
+  (use-package css-mode :ensure t)
+  ;;(add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+
+#+end_src
+
+ * DART
+#+begin_src emacs-lisp
+  (use-package dart-mode
+  :ensure t)
+#+end_src
+
+ * GO
+
+install gotest
+#+begin_src emacs-lisp
+  (use-package gotest
+	     :ensure t)
+#+end_src
+install el-doc
+#+begin_src emacs-lisp
+
+(use-package go-eldoc
+	     :ensure t)
+#+end_src
+
+install go-guru
+#+begin_src emacs-lisp
+
+(use-package go-guru
+	     :ensure t)
+#+end_src
+
+install neotree
+#+begin_src emacs-lisp
+
+(use-package neotree
+  :ensure t
+  )
+#+end_src
+
+install go-autocomplete
+#+begin_src emacs-lisp
+
+(use-package go-autocomplete
+	     :ensure t)
+#+end_src
+
+install projectile
+#+begin_src emacs-lisp
+
+(use-package projectile
+	     :ensure t)
+#+end_src
+
+install go integration with projectile
+#+begin_src emacs-lisp
+
+(use-package go-projectile
+	     :ensure t
+	     :init
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("s-p" . projectile-command-map)
+              ("C-c p" . projectile-command-map)
+	      ("C-c C-p s" . projectile-switch-project)
+	      ;;("C-c C-p a" . projectile-add-known-project)
+	      ))
+#+end_src
+
+General config 
+#+begin_src emacs-lisp
+
+
+  ;; Go - lsp-mode
+  ;; Set up before-save hooks to format buffer and add/delete imports.
+  (defun lsp-go-install-save-hooks ()
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t))
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+
+  ;; Start LSP Mode and YASnippet mode
+  (add-hook 'go-mode-hook #'lsp-deferred)
+  (add-hook 'go-mode-hook #'yas-minor-mode)
+
+
+  ;; TAB width 4
+  (setq tab-width 4 indent-tabs-mode 1)
+  (defun my-go-mode-hook ()
+	; eldoc shows the signature of the function at point in the status bar.
+	(go-eldoc-setup)
+	;;Error highlight 
+	(add-hook 'after-init-hook #'global-flycheck-mode)
+	;; replace goto-definition with godef-jump THE SAME
+	;;(local-set-key (kbd "M-.") #'godef-jump)
+	;; Format using gofmt before save
+	(add-hook 'before-save-hook 'gofmt-before-save)
+	(add-hook 'before-save-hook #'lsp-organize-imports t t)
+	(add-hook 'before-save-hook #'lsp-format-buffer)
+	(auto-complete-mode 1)
+	; extra keybindings from https://github.com/bbatsov/prelude/blob/master/modules/prelude-go.el
+	(let ((map go-mode-map))
+	  (define-key map (kbd "C-c p") 'go-test-current-project) ;; current package, really
+	  (define-key map (kbd "C-c f") 'go-test-current-file)
+	  (define-key map (kbd "C-c .") 'go-test-current-test)
+	  (define-key map (kbd "C-c b") 'go-run)
+	  ;; Key bindings specific to go-mode
+	  (local-set-key (kbd "M-.") 'godef-jump)         ; Go to definition
+	  (local-set-key (kbd "M-*") 'pop-tag-mark)       ; Return from whence you came
+	  (local-set-key (kbd "M-p") 'compile)            ; Invoke compiler
+	  (local-set-key (kbd "M-P") 'recompile)          ; Redo most recent compile cmd
+	  (local-set-key (kbd "M-]") 'next-error)         ; Go to next error (or msg)
+	  (local-set-key (kbd "M-[") 'previous-error)     ; Go to previous error or msg
+	  )) ;; go run file in wich you are
+  (add-hook 'go-mode-hook 'my-go-mode-hook)
+  ;; Use projectile-test-project in place of "compile"; assign whatever key you want.
+  (global-set-key [f9] 'projectile-test-project)
+
+
+  ; "projectile" recognizes git repos (etc) as "projects" and changes settings
+  ; as you switch between them. 
+  (require 'go-projectile)
+  (go-projectile-tools-add-path)
+  (setq gofmt-command (concat go-projectile-tools-path "/bin/goimports"))
+
+
+  ; gotest defines a better set of error regexps for go tests, but it only
+  ; enables them when using its own functions. Add them globally for use in
+  (require 'compile)
+  (require 'gotest)
+  (dolist (elt go-test-compilation-error-regexp-alist-alist)
+    (add-to-list 'compilation-error-regexp-alist-alist elt))
+  (defun prepend-go-compilation-regexps ()
+    (dolist (elt (reverse go-test-compilation-error-regexp-alist))
+      (add-to-list 'compilation-error-regexp-alist elt t)))
+  (add-hook 'go-mode-hook 'prepend-go-compilation-regexps)
+
+   (with-eval-after-load 'go-mode
+     (require 'go-autocomplete))
+
+#+end_src
+
+* ORG mode
+General Org config
+#+begin_src emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  ;; Improve org mode looks
+  (setq org-startup-indented t
+	org-pretty-entities t
+	org-hide-emphasis-markers t
+	org-startup-with-inline-images t
+	org-image-actual-width '(300))
+   ;; Increase size of LaTeX fragment previews
+  (plist-put org-format-latex-options :scale 2)
+  ;; Increase line spacing
+  (setq-default line-spacing 6)
+
+#+end_src
+Show hide emphasis *marker* install
+#+begin_src emacs-lisp
+  ;; Show hidden emphasis markers
+  (use-package org-appear
+    :ensure t
+    :hook (org-mode . org-appear-mode))
+#+end_src
+Mixed pitch giving me error disabled
+#+begin_src emacs-lisp
+  ;; Set default, fixed and variabel pitch fonts
+  ;; Use M-x menu-set-font to view available fonts
+  ;;(use-package mixed-pitch
+  ;  :ensure t
+  ;  :hook
+  ;  (text-mode . mixed-pitch-mode)
+  ;  :config
+  ;  (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 130)
+  ;  (set-face-attribute 'fixed-pitch nil :font "DejaVu Sans Mono")
+  ;  (set-face-attribute 'variable-pitch nil :font "DejaVu Sans"))
+  ;(add-hook 'mixed-pitch-mode-hook #'solaire-mode-reset)
+#+end_src
+Install org star and signaling
+#+begin_src emacs-lisp
+  ;; Nice bullets
+  (use-package org-superstar
+    :ensure t
+    :config
+    (setq org-superstar-special-todo-items t)
+    (add-hook 'org-mode-hook (lambda ()
+			       (org-superstar-mode 1))))
+
+#+end_src
+Distract-free reading install package  
+#+begin_src emacs-lisp
+  ;; Distraction-free screen
+  (use-package olivetti
+    :ensure t
+    :init
+    (setq olivetti-body-width .67)
+    :config
+    (defun distraction-free ()
+      "Distraction-free writing environment"
+      (interactive)
+      (if (equal olivetti-mode nil)
+	  (progn
+	    (window-configuration-to-register 1)
+	    (delete-other-windows)
+	    (text-scale-increase 2)
+	    (olivetti-mode t))
+	(progn
+	  (jump-to-register 1)
+	  (olivetti-mode 0)
+	  (text-scale-decrease 2))))
+    :bind
+    (("<f9>" . distraction-free)))
+#+end_src
