@@ -1,0 +1,15 @@
+#+AUTHOR: maximo tejeda
+#+EMAIL: maximotejeda@gmail.com
+
+* My emacs Conf
+The most common thing for me is to struggle while trying
+to configure my emacs for my daily use, since in  my work almost always use VScode i spent insame amounts of time without tweaking emacs and almost forget what i've been learning.
+
+This time will be different ill be going from scratch to learn all the inside emacs and lisp, and this config is for cross/Device configuration.
+
+Im usinng a simple configuration sugested by org-babel to sabe the configuration inside an org Document, in my case the document lack of descriptions but ill try to fix it soon.
+** Structure
+the structure onf this configuration is a simple /init.el/ file that will be on charge of load all the org files inside the init directory or the org-dir, and a config.org for configurations for basic emacs and programming tools.
+./init.el
+./config.org
+On each boot init.el will load all the emacs-lisp snipet and create a file config.el and load it.
