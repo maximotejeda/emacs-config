@@ -12,4 +12,8 @@ Im usinng a simple configuration sugested by org-babel to sabe the configuration
 the structure onf this configuration is a simple /init.el/ file that will be on charge of load all the org files inside the init directory or the org-dir, and a config.org for configurations for basic emacs and programming tools.
 ./init.el
 ./config.org
-On each boot init.el will load all the emacs-lisp snipet and create a file config.el and load it.
+On each boot init.el will load all the emacs-lisp
+#+begin_src emacs-lisp
+  (message princ "Hello World")
+#+end_src
+snipet and create a file config.el and load it.
