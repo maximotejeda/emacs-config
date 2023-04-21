@@ -14,6 +14,6 @@ the structure onf this configuration is a simple /init.el/ file that will be on 
 ./config.org
 On each boot init.el will load all the emacs-lisp
 #+begin_src emacs-lisp
-  (message princ "Hello World")
+  (princ "Hello World")
 #+end_src
 snipet and create a file config.el and load it.
