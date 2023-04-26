@@ -15,6 +15,13 @@ mantains always the last version
   (setq vc-make-backup-files t)
   (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 #+end_src
+* Path Manage
+#+begin_src emacs-lisp
+  (add-to-list 'exec-path "/home/maximo/go/bin")
+  (add-to-list 'exec-path "/usr/local/go/bin")
+  (setenv "PATH" (concat "/usr/local/go/bin:"
+    	    (getenv "PATH")))
+#+end_src
 * Package manager
 Require packages and add some repos to the list
 #+begin_src emacs-lisp
@@ -78,29 +85,36 @@ Install company for Auto completion
       :ensure t)
     
 #+end_src
+#+begin_src emacs-lisp
+  (use-package flymake
+    :ensure t
+    :config
+    (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake))
+#+end_src
 
 Install LSP mode and configure the distinct langages to use
 #+begin_src emacs-lisp
-    (use-package lsp-mode
-      :ensure t
-      :bind (:map lsp-mode-map
-		  ("C-c r" . lsp-find-references)
-		  ("C-c t" . lsp-find-definition)
-		  ("C-c C-r" . lsp-rename)
-		  )
-      :init
-      ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-      (setq lsp-keymap-prefix "C-c l")
-      (setq lsp-modeline-diagnostics-enable t)
-      :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	     (js-mode . lsp)
-	     (go-mode . lsp)
-	     (web-mode . lsp)
-	     (dart-mode . lsp)
-	     ;; if you want which-key integration
-	     (lsp-mode . lsp-enable-which-key-integration)
-	     (lsp-mode . lsp-treemacs))
-      :commands lsp)
+      (use-package lsp-mode
+	:ensure t
+	:bind (:map lsp-mode-map
+		    ("C-c r" . lsp-find-references)
+		    ("C-c t" . lsp-find-definition)
+		    ("C-c C-r" . lsp-rename)
+		    )
+	:init
+	;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+	(setq lsp-keymap-prefix "C-c l")
+	(setq lsp-modeline-diagnostics-enable t)
+	:hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	       (js-mode . lsp)
+	       (go-mode . lsp)
+	       (web-mode . lsp)
+	       (dart-mode . lsp)
+	       ;; if you want which-key integration
+	       (lsp-mode . lsp-enable-which-key-integration)
+	       (lsp-mode . lsp-treemacs-error-list-mode)
+	       )
+	:commands lsp)
 #+end_src
 
 Optional install lsp-ui
