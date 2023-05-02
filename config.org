@@ -67,12 +67,13 @@ mantains always the last version
 * Basic Customization
 Config
 #+begin_src emacs-lisp
-    (setq inhibit-startup-message t)                ;; init message hide
-    (load-theme 'material t)                        ;; apply materialtheme 
-    (global-linum-mode t)                           ;; Numbers on the lines
-    (global-set-key [f8] 'treemacs)
-    (setq user-full-name "maximo tejeda"
-          user-email-address "maximotejeda@gmail.com")
+  (setq inhibit-startup-message t)                ;; init message hide
+  (load-theme 'material t)                        ;; apply materialtheme 
+  (global-linum-mode t)                           ;; Numbers on the lines
+  (global-set-key [f8] 'treemacs)
+  (add-to-list 'image-types 'svg)
+  (setq user-full-name "maximo tejeda"
+        user-email-address "maximotejeda@gmail.com")
 #+end_src
 
 * Programming
