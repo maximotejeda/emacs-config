@@ -1,0 +1,15 @@
+/.cache/
+/.dap-breakpoints
+/.lsp-session-v1
+/README.el
+/ac-comphist.dat
+/auto-save-list/
+/backups/
+/bookmarks
+/config.el
+/eln-cache/
+/elpa/
+/elpy/
+/transient/
+/projectile-bookmarks.eld
+/gotools/

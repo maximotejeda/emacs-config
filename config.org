@@ -1,30 +1,6 @@
 #+AUTHOR: Maximo Tejeda
 #+EMAIL: maximotejeda@gmail.com
-* Backup
-A place where all the backups will be saved
-#+begin_src emacs-lisp
-      (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-      (with-eval-after-load 'tramp  
-        (add-to-list 'tramp-backup-directory-alist
-                     (cons tramp-file-name-regexp nil)))
-#+end_src
-mantains always the last version
-#+begin_src emacs-lisp
-  (setq delete-old-versions -1)
-  (setq version-control t)
-  (setq vc-make-backup-files t)
-  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-#+end_src
-* Path Manage
-#+begin_src emacs-lisp
-   (add-to-list 'exec-path "~/go/bin")
-   (add-to-list 'exec-path "/usr/local/go/bin")
-   (setenv "PATH" (concat "/usr/local/go/bin:~/go/bin:"
-             (getenv "PATH")))
-  (setenv "GOBIN" "~/go/bin")
-  (setenv "GO111MODULE" "on")
-
-#+end_src
+#-*- mode: org -*-
 * Package manager
 Require packages and add some repos to the list
 #+begin_src emacs-lisp
@@ -62,6 +38,32 @@ use a map to walk inside a list
 	    (package-install package)))
       myPackages)
 #+end_src
+* Path Manage
+#+begin_src emacs-lisp
+   (add-to-list 'exec-path "~/go/bin")
+   (add-to-list 'exec-path "/usr/local/go/bin")
+  (add-to-list 'exec-path "~/.nvm/versions/node/v18.16.0/bin/")
+   (setenv "PATH" (concat "/usr/local/go/bin:~/go/bin:~/.nvm/versions/node/v18.16.0/bin/:"
+             (getenv "PATH")))
+  (setenv "GOBIN" "~/go/bin")
+  (setenv "GO111MODULE" "on")
+
+#+end_src
+* Backup
+A place where all the backups will be saved
+#+begin_src emacs-lisp
+      (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+      (with-eval-after-load 'tramp  
+        (add-to-list 'tramp-backup-directory-alist
+                     (cons tramp-file-name-regexp nil)))
+#+end_src
+mantains always the last version
+#+begin_src emacs-lisp
+  (setq delete-old-versions -1)
+  (setq version-control t)
+  (setq vc-make-backup-files t)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+#+end_src
 * Basic Customization
 Config
 #+begin_src emacs-lisp
@@ -72,8 +74,12 @@ Config
     (setq user-full-name "maximo tejeda"
           user-email-address "maximotejeda@gmail.com")
 #+end_src
+
 * Programming
 Here laid the Programming configuration of each of the langages
+#+begin_src emacs-lisp
+  (setq tab-width 4) ;; set tabs to 4 not 8 
+#+end_src
 ** LSP server
 Here ill install all LSP dependencies and the LSP itself
 Install langage server for DART 
@@ -84,9 +90,32 @@ Install langage server for DART
 
 Install company for Auto completion
 #+begin_src emacs-lisp
-    (use-package company
-      :ensure t)
-    
+  (use-package company
+    :ensure t
+    :defer t
+    :custom
+    ;; Search other buffers with the same modes for completion instead of
+    ;; searching all other buffers.
+    (company-dabbrev-other-buffers t)
+    (company-dabbrev-code-other-buffers t)
+    ;; M-<num> to select an option according to its number.
+    (company-show-numbers t)
+    ;; Only 2 letters required for completion to activate.
+    (company-minimum-prefix-length 3)
+    ;; Do not downcase completions by default.
+  (company-dabbrev-downcase nil)
+  ;; Even if I write something with the wrong case,
+  ;; provide the correct casing.
+  (company-dabbrev-ignore-case t)
+  ;; company completion wait
+  (company-idle-delay 0.2)
+  ;; No company-mode in shell & eshell
+  (company-global-modes '(not eshell-mode shell-mode))
+  ;; Use company with text and programming modes.
+    :hook ((text-mode . company-mode)
+           (prog-mode . company-mode)))
+
+
 #+end_src
 #+begin_src emacs-lisp
   (use-package flymake
@@ -108,17 +137,34 @@ Install LSP mode and configure the distinct langages to use
     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
     (setq lsp-keymap-prefix "C-c l")
     (setq lsp-modeline-diagnostics-enable t)
+    :config
+    (setq lsp-idle-delay 0.5
+          lsp-enable-symbol-highlighting t
+          lsp-enable-snippet nil  ;; Not supported by company capf, which is the recommended company backend
+          lsp-pyls-plugins-flake8-enabled t)
+    (lsp-register-custom-settings
+     '(("pyls.plugins.pyls_mypy.enabled" t t)
+       ("pyls.plugins.pyls_mypy.live_mode" nil t)
+       ("pyls.plugins.pyls_black.enabled" t t)
+       ("pyls.plugins.pyls_isort.enabled" t t)
+
+       ;; Disable these as they're duplicated by flake8
+       ("pyls.plugins.pycodestyle.enabled" nil t)
+       ("pyls.plugins.mccabe.enabled" nil t)
+       ("pyls.plugins.pyflakes.enabled" nil t)))
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-           (js-mode . lsp)
+           ;;(js-mode . lsp)
            (go-mode . lsp)
            (web-mode . lsp)
            (dart-mode . lsp)
+           ;;(python-mode . lsp)
            ;; if you want which-key integration
            (lsp-mode . lsp-enable-which-key-integration)
            (lsp-mode . lsp-treemacs-error-list-mode)
            )
     (setq load-no-native t)
-    :commands lsp)
+    :commands lsp
+    )
 #+end_src
 
 Optional install lsp-ui
@@ -161,17 +207,47 @@ integration with which key
 
 #+end_src
 
+** Eglot
+#+begin_src emacs-lisp
+  (use-package eglot
+    :ensure t
+    :hook
+    (python-mode . eglot-ensure)
+    (js-mode . eglot-ensure)
+    (javascript-mode . eglot-ensure)
+         )
+#+end_src
+** Git
+#+begin_src emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind(("C-x g" . magit))
+    )
+#+end_src
 ** Python
 Here is the python configuration
 #+begin_src emacs-lisp
-(use-package elpy
-	     :ensure t
-	     :init
-	     (advice-add 'python-mode :before 'elpy-enable)
-	     (setq python-shell-interpreter "python3.11"
-		   python-shell-interpreter-args "-i")
-	     )
-  
+  (use-package pyvenv
+    :demand t
+    :ensure t 
+    :config
+    (pyvenv-activate "~/.virtualenvs/default")  ; Default venv
+    ;;(pvenv-tracking-mode 1)
+    :hook
+    (python-mode . pyvenv-mode)
+    )  ; Automatically use pyvenv-workon via dir-locals
+
+  (use-package python
+    :mode ("\\.py\\'" . python-mode)
+    :interpreter ("python" . python-mode)
+    :bind
+    (("C-c <tab>" . company-complete))
+    :config
+    (setq tab-width 4 indent-tabs-mode 1) 
+
+
+    )
+
 #+end_src
 ** JavaScript
 Javascript config to be reviewed
@@ -213,12 +289,6 @@ Javascript config to be reviewed
   (use-package css-mode :ensure t)
   ;;(add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
 
-#+end_src
-
-** DART
-#+begin_src emacs-lisp
-  (use-package dart-mode
-  :ensure t)
 #+end_src
 
 ** GO
@@ -353,22 +423,63 @@ General config
   
 #+end_src
 
+** DART
+#+begin_src emacs-lisp
+  (use-package dart-mode
+  :ensure t)
+#+end_src
+
 * ORG mode
 General Org config
 #+begin_src emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-  (global-set-key "\C-cl" 'org-store-link)
-  (global-set-key "\C-ca" 'org-agenda)
-  ;; Improve org mode looks
-  (setq org-startup-indented t
-	org-pretty-entities t
-	org-hide-emphasis-markers t
-	org-startup-with-inline-images t
-	org-image-actual-width '(300))
-   ;; Increase size of LaTeX fragment previews
-  (plist-put org-format-latex-options :scale 2)
-  ;; Increase line spacing
-  (setq-default line-spacing 6)
+  (use-package org
+    :mode (("\\.org$" . org-mode))
+    :ensure org-contrib
+    :bind (("C-c l" . org-store-link)
+           ("C-c a" . org-agenda)
+           ("C-c o" . (lambda () (interactive) (find-file "~/.org/organizer.org")))
+           ("C-c c" . org-capture))
+    :config
+    (setq org-startup-indented t
+              org-pretty-entities t
+              org-hide-emphasis-markers t
+              org-startup-with-inline-images t
+              org-image-actual-width '(300)
+              org-log-done 'time
+              org-directory "~/Documents/org"
+              org-refile-targets '((org-agenda-files . (:maxlevel . 6)))
+              org-default-notes-file "~/.org/organizer.org"
+              org-capture-templates
+              '(("t" "Todo" entry (file+headline "~/.org/tasks.org" "Tasks")
+                 "* TODO %?\n  %i\n  %a"
+                 :empty-lines-before 1
+                 :empty-lines-after 1)
+                ("j" "Journal" entry (file+datetree "~/.org/journal.org")
+                 "* %?\nEntered on %U\n  %i\n  %a")
+                ("n" "Notes" entry (file+headline "~/.org/organizer.org" "Notes")
+                 "** NOTE %?\n %i\n %a"
+                 :empty-lines-before 1
+                 :empty-lines-after 1)
+                )
+              )
+    (plist-put org-format-latex-options :scale 2)
+    (setq-default line-spacing 6)
+
+    )
+
+   ;; (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  ;;      (global-set-key "\C-cl" 'org-store-link)
+  ;;      (global-set-key "\C-ca" 'org-agenda)
+        ;; Improve org mode looks
+  ;;      (setq org-startup-indented t
+  ;;            org-pretty-entities t
+  ;;            org-hide-emphasis-markers t
+  ;;            org-startup-with-inline-images t
+  ;;            org-image-actual-width '(300))
+         ;; Increase size of LaTeX fragment previews
+  ;;      (plist-put org-format-latex-options :scale 2)
+        ;; Increase line spacing
+  ;;      (setq-default line-spacing 6)
 
 #+end_src
 Show hide emphasis *marker* install
@@ -382,25 +493,27 @@ Mixed pitch giving me error disabled
 #+begin_src emacs-lisp
   ;; Set default, fixed and variabel pitch fonts
   ;; Use M-x menu-set-font to view available fonts
-  ;;(use-package mixed-pitch
-  ;  :ensure t
-  ;  :hook
-  ;  (text-mode . mixed-pitch-mode)
-  ;  :config
-  ;  (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 130)
-  ;  (set-face-attribute 'fixed-pitch nil :font "DejaVu Sans Mono")
-  ;  (set-face-attribute 'variable-pitch nil :font "DejaVu Sans"))
-  ;(add-hook 'mixed-pitch-mode-hook #'solaire-mode-reset)
+  (use-package mixed-pitch
+    :ensure t
+    :hook
+    (text-mode . mixed-pitch-mode)
+    :config
+    (set-face-attribute 'default nil :font "DejaVu Sans Mono" :height 130)
+    (set-face-attribute 'fixed-pitch nil :font "DejaVu Sans Mono")
+    (set-face-attribute 'variable-pitch nil :font "DejaVu Sans"))
+  ;;(add-hook 'mixed-pitch-mode-hook #'solaire-mode-reset)
 #+end_src
 Install org star and signaling
 #+begin_src emacs-lisp
   ;; Nice bullets
   (use-package org-superstar
     :ensure t
+    :hook
+    (org-mode . org-superstar-mode)
     :config
     (setq org-superstar-special-todo-items t)
     (add-hook 'org-mode-hook (lambda ()
-			       (org-superstar-mode 1))))
+                               (org-superstar-mode 1))))
 
 #+end_src
 Distract-free reading install package  
