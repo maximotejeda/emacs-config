@@ -74,6 +74,11 @@ Config
   (add-to-list 'image-types 'svg)
   (setq user-full-name "maximo tejeda"
         user-email-address "maximotejeda@gmail.com")
+  ;; resize window Config
+   (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
+    (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+    (global-set-key (kbd "S-C-<down>") 'shrink-window)
+    (global-set-key (kbd "S-C-<up>") 'enlarge-window)
 #+end_src
 
 * Programming
@@ -157,7 +162,6 @@ Install LSP mode and configure the distinct langages to use
            ;;(js-mode . lsp)
            (go-mode . lsp)
            (web-mode . lsp)
-           (dart-mode . lsp)
            ;;(python-mode . lsp)
            ;; if you want which-key integration
            (lsp-mode . lsp-enable-which-key-integration)
@@ -212,10 +216,16 @@ integration with which key
 #+begin_src emacs-lisp
   (use-package eglot
     :ensure t
+     :bind (:map eglot-mode-map
+                ("C-c C-r" . eglot-rename)
+                )
     :hook
     (python-mode . eglot-ensure)
     (js-mode . eglot-ensure)
     (javascript-mode . eglot-ensure)
+    (dart-mode . eglot-ensure)
+    (eglot-mode . lsp-enable-which-key-integration)
+    (eglot-mode . lsp-treemacs-error-list-mode)
          )
 #+end_src
 ** Git
@@ -529,6 +539,7 @@ Distract-free reading install package
 #+end_src
 
 * Reader Ebook
+Ebook Epub format Config
 #+begin_src emacs-lisp
     (defvar nov-cursor nil "Whether the cursor is enabled")
 
@@ -571,4 +582,25 @@ Distract-free reading install package
                   ("C-q" . 'toggle-nov-cursor))
     )
 
+#+end_src
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :ensure t
+    :config
+    (pdf-tools-install)
+    (setq-default pdf-view-display-size 'fit-width)
+    (setq pdf-view-use-scaling nil)
+    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward))
+#+end_src
+
+* Web Browser
+#+begin_src emacs-lisp
+   (setq
+  browse-url-browser-function 'eww-browse-url ; Use eww as the default browser
+  shr-use-fonts  nil                          ; No special fonts
+  shr-use-colors nil                          ; No colours
+  shr-indentation 2                           ; Left-side margin
+  shr-width 70                                ; Fold text to 70 columns
+  ;;eww-search-prefix "https://wiby.me/?q="     ; Use another engine for searching
+  )    
 #+end_src
