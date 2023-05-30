@@ -67,20 +67,30 @@ mantains always the last version
 * Basic Customization
 Config
 #+begin_src emacs-lisp
-  (setq inhibit-startup-message t)                ;; init message hide
-  (load-theme 'material t)                        ;; apply materialtheme 
-  (global-linum-mode t)                           ;; Numbers on the lines
+    (setq inhibit-startup-message t)                ;; init message hide
+    (load-theme 'material t)                        ;; apply materialtheme 
+    ;;(global-linum-mode t)                           ;; Numbers on the lines
+  (when (version<= "26.0.50" emacs-version )        ;; line numbers on recent emacs
+    (global-display-line-numbers-mode))
   (global-set-key [f8] 'treemacs)
-  (add-to-list 'image-types 'svg)
-  (setq user-full-name "maximo tejeda"
-        user-email-address "maximotejeda@gmail.com")
-  ;; resize window Config
-   (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
-    (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
-    (global-set-key (kbd "S-C-<down>") 'shrink-window)
-    (global-set-key (kbd "S-C-<up>") 'enlarge-window)
-#+end_src
+    (add-to-list 'image-types 'svg)
+    (setq user-full-name "maximo tejeda"
+	  user-email-address "maximotejeda@gmail.com")
+    ;; resize window Config
+     (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
+      (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+      (global-set-key (kbd "S-C-<down>") 'shrink-window)
+      (global-set-key (kbd "S-C-<up>") 'enlarge-window)
+    ;;(define-key input-decode-map "\e[1;6A" [S-C-<up>])
 
+  ;; why emacs dont recognize shift key on cli
+  ;;|  Key | Key-Map | Cristiano               |
+  ;;| OA | [1;6A | control shift Up        |
+  ;;| OB | [1;6B | control shift down      |
+  ;;| OD | [1;6D | control shift Left      |
+  ;;| OC | [1;6C | control shift right     |
+
+#+end_src
 * Programming
 Here laid the Programming configuration of each of the langages
 #+begin_src emacs-lisp
@@ -160,7 +170,7 @@ Install LSP mode and configure the distinct langages to use
        ("pyls.plugins.pyflakes.enabled" nil t)))
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
            ;;(js-mode . lsp)
-           (go-mode . lsp)
+           ;;(go-mode . lsp)
            (web-mode . lsp)
            ;;(python-mode . lsp)
            ;; if you want which-key integration
@@ -222,6 +232,7 @@ integration with which key
     :hook
     (python-mode . eglot-ensure)
     (js-mode . eglot-ensure)
+    (go-mode . eglot-ensure)
     (javascript-mode . eglot-ensure)
     (dart-mode . eglot-ensure)
     (eglot-mode . lsp-enable-which-key-integration)
@@ -374,7 +385,7 @@ General config
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
   ;; Start LSP Mode and YASnippet mode
-  (add-hook 'go-mode-hook #'lsp-deferred)
+  ;;(add-hook 'go-mode-hook #'lsp-deferred)
   (add-hook 'go-mode-hook #'yas-minor-mode)
 
 
@@ -384,7 +395,7 @@ General config
     ;; eldoc shows the signature of the function at point in the status bar.
     (go-eldoc-setup)
     ;;Error highlight 
-    (add-hook 'after-init-hook #'global-flycheck-mode)
+    ;;(add-hook 'after-init-hook #'global-flycheck-mode)
     ;; replace goto-definition with godef-jump THE SAME
     ;;(local-set-key (kbd "M-.") #'godef-jump)
     ;; Format using gofmt before save
@@ -406,7 +417,7 @@ General config
       (local-set-key (kbd "M-]") 'next-error)         ; Go to next error (or msg)
       (local-set-key (kbd "M-[") 'previous-error)     ; Go to previous error or msg
       )) ;; go run file in wich you are
-  (add-hook 'go-mode-hook 'my-go-mode-hook)
+  ;;(add-hook 'go-mode-hook 'my-go-mode-hook)
     ;; Use projectile-test-project in place of "compile"; assign whatever key you want.
   (global-set-key [f9] 'projectile-test-project)
 
@@ -415,11 +426,19 @@ General config
   ;; as you switch between them. 
   (require 'go-projectile)
   (go-projectile-tools-add-path)
+  ;;(add-hook 'after-init-hook #'global-flycheck-mode)
+
+  ;; Format using gofmt before save
+    (add-hook 'before-save-hook 'gofmt-before-save)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t)
+  
   ;;(setq gofmt-command (concat go-projectile-tools-path "/bin/goimports"))
   ;; gotest defines a better set of error regexps for go tests, but it only
   ;; enables them when using its own functions. Add them globally for use in
   (require 'compile)
   (require 'gotest)
+  (go-eldoc-setup)
+
   (dolist (elt go-test-compilation-error-regexp-alist-alist)
     (add-to-list 'compilation-error-regexp-alist-alist elt))
 
@@ -431,7 +450,7 @@ General config
   (with-eval-after-load 'go-mode
     (require 'dap-dlv-go)
     )
-  
+
 #+end_src
 
 ** DART
