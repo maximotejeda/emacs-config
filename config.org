@@ -67,22 +67,26 @@ mantains always the last version
 * Basic Customization
 Config
 #+begin_src emacs-lisp
-    (setq inhibit-startup-message t)                ;; init message hide
-    (load-theme 'material t)                        ;; apply materialtheme 
-    ;;(global-linum-mode t)                           ;; Numbers on the lines
+  (setq inhibit-startup-message t)                ;; init message hide
+  (load-theme 'material t)                        ;; apply materialtheme 
+  ;;(global-linum-mode t)                           ;; Numbers on the lines
   (when (version<= "26.0.50" emacs-version )        ;; line numbers on recent emacs
     (global-display-line-numbers-mode))
   (global-set-key [f8] 'treemacs)
-    (add-to-list 'image-types 'svg)
-    (setq user-full-name "maximo tejeda"
-	  user-email-address "maximotejeda@gmail.com")
-    ;; resize window Config
-     (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
-      (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
-      (global-set-key (kbd "S-C-<down>") 'shrink-window)
-      (global-set-key (kbd "S-C-<up>") 'enlarge-window)
-    ;;(define-key input-decode-map "\e[1;6A" [S-C-<up>])
-
+  (add-to-list 'image-types 'svg)
+  (setq user-full-name "maximo tejeda"
+        user-email-address "maximotejeda@gmail.com")
+  ;; resize window Config
+  (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
+  (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+  (global-set-key (kbd "S-C-<down>") 'shrink-window)
+  (global-set-key (kbd "S-C-<up>") 'enlarge-window)
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (use-package minimap
+    :ensure t
+    )
   ;; why emacs dont recognize shift key on cli
   ;;|  Key | Key-Map | Cristiano               |
   ;;| OA | [1;6A | control shift Up        |
@@ -283,17 +287,20 @@ integration with which key
            (eglot-code-actions nil nil "source.organizeImports" t))
     (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
     (add-hook 'before-save-hook 'eglot-format-buffer)
+    (add-hook 'dap-stopped-hook
+             (lambda (arg) (call-interactively #'dap-hydra)))
     :ensure t
     :bind (:map eglot-mode-map
                 ("C-c C-r" . eglot-rename)
                 )
     :hook
+    (prog-mode-hook . eglot-ensure)
     (python-mode . eglot-ensure)
     (js-mode . eglot-ensure)
     (go-mode . eglot-ensure)
     (javascript-mode . eglot-ensure)
     (dart-mode . eglot-ensure)
-    (require dap-dlv-go)
+    (eglot-mode . dap-mode)
     (eglot-mode . lsp-enable-which-key-integration)
     (eglot-mode . lsp-treemacs-error-list-mode)
     ((eglot-managed-mode . mp-eglot-eldoc))
