@@ -133,11 +133,64 @@ Install company for Auto completion
 
 
 #+end_src
+
+Flymake to override flycheck
 #+begin_src emacs-lisp
-  (use-package flymake
-    :ensure t
-    :config
-    (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake))
+  ;;(use-package flymake
+   ;; :ensure t
+   ;; :config
+   ;; (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake))
+#+end_src
+flycheck config
+#+begin_src emacs-lisp
+(use-package flycheck
+  :preface
+
+  (defun mp-flycheck-eldoc (callback &rest _ignored)
+    "Print flycheck messages at point by calling CALLBACK."
+    (when-let ((flycheck-errors (and flycheck-mode (flycheck-overlay-errors-at (point)))))
+      (mapc
+       (lambda (err)
+         (funcall callback
+           (format "%s: %s"
+                   (let ((level (flycheck-error-level err)))
+                     (pcase level
+                       ('info (propertize "I" 'face 'flycheck-error-list-info))
+                       ('error (propertize "E" 'face 'flycheck-error-list-error))
+                       ('warning (propertize "W" 'face 'flycheck-error-list-warning))
+                       (_ level)))
+                   (flycheck-error-message err))
+           :thing (or (flycheck-error-id err)
+                      (flycheck-error-group err))
+           :face 'font-lock-doc-face))
+       flycheck-errors)))
+
+  (defun mp-flycheck-prefer-eldoc ()
+    (add-hook 'eldoc-documentation-functions #'mp-flycheck-eldoc nil t)
+    (setq eldoc-documentation-strategy 'eldoc-documentation-compose-eagerly)
+    (setq flycheck-display-errors-function nil)
+    (setq flycheck-help-echo-function nil))
+
+  :hook ((flycheck-mode . mp-flycheck-prefer-eldoc)))
+
+  (defun mp-flycheck-eldoc (callback &rest _ignored)
+       "Print flycheck messages at point by calling CALLBACK."
+       (when-let ((flycheck-errors (and flycheck-mode (flycheck-overlay-errors-at (point)))))
+         (mapc
+          (lambda (err)
+            (funcall callback
+               (format "%s: %s"
+                       (let ((level (flycheck-error-level err)))
+                         (pcase level
+                           ('info (propertize "I" 'face 'flycheck-error-list-info))
+                           ('error (propertize "E" 'face 'flycheck-error-list-error))
+                           ('warning (propertize "W" 'face 'flycheck-error-list-warning))
+                           (_ level)))
+                       (flycheck-error-message err))
+               :thing (or (flycheck-error-id err)
+                          (flycheck-error-group err))
+               :face 'font-lock-doc-face))
+          flycheck-errors)))
 #+end_src
 
 Install LSP mode and configure the distinct langages to use
@@ -225,8 +278,13 @@ integration with which key
 ** Eglot
 #+begin_src emacs-lisp
   (use-package eglot
+    :config
+    (defun my-eglot-organize-imports () (interactive)
+           (eglot-code-actions nil nil "source.organizeImports" t))
+    (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+    (add-hook 'before-save-hook 'eglot-format-buffer)
     :ensure t
-     :bind (:map eglot-mode-map
+    :bind (:map eglot-mode-map
                 ("C-c C-r" . eglot-rename)
                 )
     :hook
@@ -235,9 +293,16 @@ integration with which key
     (go-mode . eglot-ensure)
     (javascript-mode . eglot-ensure)
     (dart-mode . eglot-ensure)
+    (require dap-dlv-go)
     (eglot-mode . lsp-enable-which-key-integration)
     (eglot-mode . lsp-treemacs-error-list-mode)
+    ((eglot-managed-mode . mp-eglot-eldoc))
+    :preface
+  (defun mp-eglot-eldoc ()
+    (setq eldoc-documentation-strategy
+            'eldoc-documentation-compose-eagerly))
          )
+
 #+end_src
 ** Git
 #+begin_src emacs-lisp
@@ -329,14 +394,12 @@ install el-doc
 
 install go-guru
 #+begin_src emacs-lisp
-
 (use-package go-guru
 	     :ensure t)
 #+end_src
 
 install neotree
 #+begin_src emacs-lisp
-
 (use-package neotree
   :ensure t
   )
@@ -344,21 +407,18 @@ install neotree
 
 install go-autocomplete
 #+begin_src emacs-lisp
-
 (use-package go-autocomplete
 	     :ensure t)
 #+end_src
 
 install projectile
 #+begin_src emacs-lisp
-
 (use-package projectile
 	     :ensure t)
 #+end_src
 
 install go integration with projectile
 #+begin_src emacs-lisp
-
 (use-package go-projectile
 	     :ensure t
 	     :init
@@ -376,7 +436,7 @@ General config
     ;; Activate company for auto completion
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 1)
-
+  
   ;; Go - lsp-mode
   ;; Set up before-save hooks to format buffer and add/delete imports.
   (defun lsp-go-install-save-hooks ()
@@ -431,7 +491,7 @@ General config
   ;; Format using gofmt before save
     (add-hook 'before-save-hook 'gofmt-before-save)
     (add-hook 'before-save-hook #'lsp-organize-imports t t)
-  
+
   ;;(setq gofmt-command (concat go-projectile-tools-path "/bin/goimports"))
   ;; gotest defines a better set of error regexps for go tests, but it only
   ;; enables them when using its own functions. Add them globally for use in
